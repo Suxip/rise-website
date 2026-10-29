@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 97%;
+    --foreground: 150 25% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 25% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 25% 12%;
+
+    --primary: 152 45% 28%;
+    --primary-foreground: 40 33% 97%;
+
+    --secondary: 38 70% 55%;
+    --secondary-foreground: 150 25% 12%;
+
+    --muted: 40 20% 92%;
+    --muted-foreground: 150 15% 28%;
+
+    --accent: 170 35% 40%;
+    --accent-foreground: 40 33% 97%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 152 45% 28%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 150 20% 16%;
+    --sidebar-foreground: 40 33% 97%;
+    --sidebar-primary: 38 70% 55%;
+    --sidebar-primary-foreground: 150 25% 12%;
+    --sidebar-accent: 150 15% 22%;
+    --sidebar-accent-foreground: 40 33% 97%;
+    --sidebar-border: 150 15% 22%;
+    --sidebar-ring: 38 70% 55%;
+
+    /* Custom tokens */
+    --energy: 38 85% 55%;
+    --water: 200 65% 50%;
+    --transport: 260 45% 55%;
+    --recycle: 152 50% 42%;
+
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  .dark {
+    --background: 150 20% 8%;
+    --foreground: 40 33% 97%;
+    --card: 150 20% 12%;
+    --card-foreground: 40 33% 97%;
+    --popover: 150 20% 12%;
+    --popover-foreground: 40 33% 97%;
+    --primary: 152 45% 45%;
+    --primary-foreground: 150 25% 12%;
+    --secondary: 38 70% 55%;
+    --secondary-foreground: 150 25% 12%;
+    --muted: 150 15% 18%;
+    --muted-foreground: 40 15% 65%;
+    --accent: 170 35% 50%;
+    --accent-foreground: 150 25% 12%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 150 15% 22%;
+    --input: 150 15% 22%;
+    --ring: 152 45% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-size: 17px;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'DM Serif Display', serif;
+  }
+}

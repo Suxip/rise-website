@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VQN1H8Y7WL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VQN1H8Y7WL');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/rise-logo.svg" type="image/svg+xml" />
+    <title>RISE — Find Sustainability Programs Near You</title>
+    <meta name="description" content="RISE helps U.S. residents discover energy rebates, water incentives, transportation programs, and recycling initiatives by state." />
+    <meta name="author" content="RISE Initiative" />
+
+    <meta property="og:title" content="RISE — Sustainability Programs Directory" />
+    <meta property="og:description" content="Find energy rebates, water incentives, transportation programs, and recycling initiatives in your state." />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script>
+      // Single Page Apps for GitHub Pages
+      // Decodes the redirected path from 404.html back into a clean URL for React Router.
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&');
+            })
+            .join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      })(window.location);
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
