@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Program, ProgramCategory } from "@/data/programs";
+import { SOURCE_ATTRIBUTIONS, type Program, type ProgramCategory } from "@/data/programs";
 import { set } from "date-fns";
 
 const CATEGORY_STYLES: Record<ProgramCategory, string> = {
@@ -48,6 +48,9 @@ export default function ProgramCard({ program }: { program: Program }) {
         </span>
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed mb-3">{program.description}</p>
+      {program.source && SOURCE_ATTRIBUTIONS[program.source] && (
+        <p className="text-xs text-muted-foreground/80 mb-3">{SOURCE_ATTRIBUTIONS[program.source]}</p>
+      )}
 
       <AnimatePresence>
         {expanded && program.details && (

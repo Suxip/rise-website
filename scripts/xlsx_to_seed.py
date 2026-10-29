@@ -3,12 +3,23 @@
 
 Usage:
     python3 scripts/xlsx_to_seed.py RISE_data.xlsx [--sheet allData] [--out supabase/seed.sql]
+        [--review-out docs/data-review-checklist.csv]
 
 Uses only the Python standard library. The generated SQL replaces every row
-in public.programs, so re-run it whenever the spreadsheet changes and paste
-the output into the Supabase SQL editor.
+in public.programs, so run it only before admins start editing in Supabase;
+afterwards it would overwrite their changes.
+
+Cleaning applied automatically:
+  - collapses stray/double spaces and line breaks in every text cell
+  - stores "See link below." access notes as empty (the site shows a standard message)
+  - splits DSIRE placeholder descriptions ("Rebate Program. Attribution: ...")
+    into program_type and source, leaving the description empty
+  - drops rows that are exact duplicates, ignoring case and spacing
+
+Rows that need a person's judgment are written to the --review-out CSV.
 """
 import argparse
+import csv
 import datetime
 import re
 import sys
@@ -41,6 +52,20 @@ STATE_CODES = {
 FEDERAL_STATE_VALUES = {"US", "USA", "United States", "Federal", ""}
 CATEGORIES = {"energy", "water", "transportation", "recycling"}
 LEVELS = {"state", "federal", "territory"}
+# Must match the program_type check constraint in supabase/migrations.
+PROGRAM_TYPES = {
+    "Rebate Program", "Loan Program", "Grant Program", "Leasing Program",
+    "PACE Financing", "Personal Tax Credit", "Personal Tax Deduction",
+    "Personal Tax Exemption", "Corporate Tax Exemption", "Property Tax Incentive",
+    "Sales Tax Incentive", "Building Energy Code", "Net Metering",
+    "Solar/Wind Permitting Standards",
+}
+DSIRE_PLACEHOLDER = re.compile(
+    r"^(?P<type>[^.]+)\.\s*Attribution: Data derived from DSIRE®, operated by the "
+    r"N\.C\. Clean Energy Technology Center at NC State University\.?$"
+)
+PLACEHOLDER_ACCESS = re.compile(r"^see link below\.?$", re.IGNORECASE)
+BROKEN_LINK_STATUSES = {"Dead", "Server Error", "Unreachable", "Invalid URL", "Error"}
 
 
 def _col_index(ref):
@@ -104,6 +129,11 @@ def sql_str(value):
     return "'" + value.replace("'", "''") + "'"
 
 
+def clean(value):
+    """Collapse runs of whitespace (including line breaks) into single spaces."""
+    return re.sub(r"\s+", " ", value).strip() if isinstance(value, str) else value
+
+
 def to_records(rows):
     header = [(h or "").strip() for h in rows[0]]
 
@@ -133,7 +163,7 @@ def to_records(rows):
         def get(key):
             i = idx[key]
             v = row[i] if i is not None and i < len(row) else None
-            return v.strip() if isinstance(v, str) else v
+            return clean(v)
 
         if not get("name"):
             continue  # blank spacer row
@@ -154,17 +184,35 @@ def to_records(rows):
             errors.append(f"row {line}: unknown State {state!r}")
             state_code = None
 
+        description = get("description") or ""
+        program_type = source = None
+        placeholder = DSIRE_PLACEHOLDER.match(description)
+        if placeholder:
+            program_type, source, description = placeholder.group("type"), "DSIRE", ""
+            if program_type not in PROGRAM_TYPES:
+                errors.append(f"row {line}: unknown DSIRE program type {program_type!r}")
+        elif "DSIRE" in description:
+            errors.append(f"row {line}: DSIRE attribution in an unexpected format: {description!r}")
+
+        how_to_access = get("how_to_access") or ""
+        if PLACEHOLDER_ACCESS.match(how_to_access):
+            how_to_access = ""
+
         records.append({
             "name": get("name"),
             "category": category,
-            "description": get("description") or "",
+            "description": description,
             "url": get("url") or "",
-            "how_to_access": get("how_to_access") or "",
+            "how_to_access": how_to_access,
             "state": state,
             "state_code": state_code,
             "level": level,
             "link_status": get("link_status") or None,
             "last_reviewed": parse_date(get("last_reviewed")),
+            "program_type": program_type,
+            "source": source,
+            "is_published": True,
+            "_row": line,
         })
 
     if errors:
@@ -172,8 +220,65 @@ def to_records(rows):
     return records
 
 
+CONTENT_FIELDS = ("name", "category", "description", "url", "how_to_access", "state", "level")
+
+
+def drop_exact_duplicates(records):
+    """Remove rows whose content matches an earlier row, ignoring case."""
+    seen, kept, dropped = {}, [], []
+    for r in records:
+        key = tuple(r[f].lower() for f in CONTENT_FIELDS)
+        if key in seen:
+            dropped.append((r, seen[key]))
+        else:
+            seen[key] = r
+            kept.append(r)
+    return kept, dropped
+
+
+def review_rows(records):
+    """Yield (record, issue, suggested action) for rows needing a person's judgment."""
+    by_name = {}
+    for r in records:
+        by_name.setdefault((r["name"].lower(), r["state"]), []).append(r)
+
+    for r in records:
+        others = [o for o in by_name[(r["name"].lower(), r["state"])] if o is not r]
+        if others:
+            ids = ", ".join(str(o["id"]) for o in others)
+            yield r, "Possible duplicate", f"Same name and state as id {ids}. Keep one or both."
+        if not r["description"] and not r["source"]:
+            yield r, "Empty description", "Write a one-sentence description."
+        if r["link_status"] in BROKEN_LINK_STATUSES:
+            yield r, f"Broken link ({r['link_status']})", "Find the new link, or hide the program."
+        if r["link_status"] == "Blocked":
+            yield r, "Link check blocked", "Open the link by hand and confirm it works."
+        if r["url"].startswith("http://"):
+            yield r, "Insecure link (http://)", "Switch to https:// if the site supports it."
+        if r["state_code"] == "PR" and r["level"] == "state":
+            yield r, "Level inconsistent", "Puerto Rico is 'state' but D.C. is 'territory'. Pick one rule."
+
+
+def write_review_csv(records, path):
+    fields = ["id", "spreadsheet_row", "issue", "suggested_action", "state", "name", "category", "url", "link_status"]
+    count = 0
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(fields)
+        for r, issue, action in review_rows(records):
+            w.writerow([r["id"], r["_row"], issue, action, r["state"], r["name"], r["category"], r["url"], r["link_status"] or ""])
+            count += 1
+    return count
+
+
+def sql_value(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return sql_str(value)
+
+
 def to_sql(records, source):
-    cols = list(records[0])
+    cols = [c for c in records[0] if c not in ("_row", "id")]
     lines = [
         f"-- Generated by scripts/xlsx_to_seed.py from {source}. Do not edit by hand.",
         f"-- {len(records)} programs. Replaces all existing rows.",
@@ -182,7 +287,7 @@ def to_sql(records, source):
         f"insert into public.programs ({', '.join(cols)}) values",
     ]
     values = [
-        "  (" + ", ".join(sql_str(r[c]) for c in cols) + ")"
+        "  (" + ", ".join(sql_value(r[c]) for c in cols) + ")"
         for r in records
     ]
     lines.append(",\n".join(values) + ";")
@@ -195,16 +300,25 @@ def main():
     parser.add_argument("xlsx")
     parser.add_argument("--sheet", default="allData")
     parser.add_argument("--out", default="supabase/seed.sql")
+    parser.add_argument("--review-out", default="docs/data-review-checklist.csv")
     args = parser.parse_args()
 
-    records = to_records(read_sheet(args.xlsx, args.sheet))
+    records, dropped = drop_exact_duplicates(to_records(read_sheet(args.xlsx, args.sheet)))
+    for r, original in dropped:
+        print(f"Dropped duplicate row {r['_row']} ({r['name']}, {r['state']}); same as row {original['_row']}")
+    # The seed restarts identity, so ids are assigned in this order.
+    for i, r in enumerate(records, start=1):
+        r["id"] = i
+
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(to_sql(records, args.xlsx.split("/")[-1]))
+    flagged = write_review_csv(records, args.review_out)
 
     by_level = {}
     for r in records:
         by_level[r["level"]] = by_level.get(r["level"], 0) + 1
     print(f"Wrote {len(records)} programs to {args.out} ({by_level})")
+    print(f"Wrote {flagged} items needing review to {args.review_out}")
 
 
 if __name__ == "__main__":

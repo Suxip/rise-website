@@ -12,6 +12,10 @@ export interface Program {
   url: string;
   details: string;
   level: string;
+  /** e.g. "Rebate Program"; null when not classified. */
+  programType: string | null;
+  /** Data source needing attribution, e.g. "DSIRE"; null for RISE-researched programs. */
+  source: string | null;
 }
 
 export const CATEGORIES: { key: ProgramCategory; label: string; icon: string }[] = [
@@ -20,6 +24,21 @@ export const CATEGORIES: { key: ProgramCategory; label: string; icon: string }[]
   { key: "transportation", label: "Transportation", icon: "🚗" },
   { key: "recycling", label: "Recycling", icon: "♻️" },
 ];
+
+// Must match the program_type check constraint in supabase/migrations.
+export const PROGRAM_TYPES = [
+  "Rebate Program", "Loan Program", "Grant Program", "Leasing Program",
+  "PACE Financing", "Personal Tax Credit", "Personal Tax Deduction",
+  "Personal Tax Exemption", "Corporate Tax Exemption", "Property Tax Incentive",
+  "Sales Tax Incentive", "Building Energy Code", "Net Metering",
+  "Solar/Wind Permitting Standards",
+] as const;
+
+export const SOURCE_ATTRIBUTIONS: Record<string, string> = {
+  DSIRE: "Data derived from DSIRE®, operated by the N.C. Clean Energy Technology Center at NC State University.",
+};
+
+const DEFAULT_HOW_TO_ACCESS = "See the official site below for eligibility and how to apply.";
 
 export const US_STATES = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" },
@@ -61,6 +80,7 @@ export interface ProgramFilters {
   stateCode?: string;
   levels?: string[];
   category?: ProgramCategory;
+  programType?: string;
   /** Free-text search over name, description and access notes. */
   search?: string;
 }
@@ -75,18 +95,23 @@ interface ProgramRow {
   state: string;
   state_code: string | null;
   level: string;
+  program_type: string | null;
+  source: string | null;
 }
 
 const toProgram = (row: ProgramRow): Program => ({
   id:          String(row.id),
   name:        row.name,
   category:    row.category,
-  description: row.description,
+  // Programs imported from DSIRE have no written description yet; show their type instead.
+  description: row.description || row.program_type || "",
   url:         row.url,
-  details:     row.how_to_access,
+  details:     row.how_to_access || DEFAULT_HOW_TO_ACCESS,
   state:       row.state,
   stateCode:   row.state_code,
   level:       row.level,
+  programType: row.program_type,
+  source:      row.source,
 });
 
 export async function fetchPrograms(filters: ProgramFilters = {}): Promise<Program[]> {
@@ -98,7 +123,9 @@ export async function fetchPrograms(filters: ProgramFilters = {}): Promise<Progr
     for (let from = 0; ; from += PAGE_SIZE) {
       let query = supabase
         .from("programs")
-        .select("id, name, category, description, url, how_to_access, state, state_code, level")
+        .select("id, name, category, description, url, how_to_access, state, state_code, level, program_type, source")
+        // Logged-in admins can read hidden rows too, so always filter here.
+        .eq("is_published", true)
         .order("state")
         .order("name")
         .order("id")
@@ -107,6 +134,7 @@ export async function fetchPrograms(filters: ProgramFilters = {}): Promise<Progr
       if (filters.stateCode) query = query.eq("state_code", filters.stateCode.toUpperCase());
       if (filters.levels?.length) query = query.in("level", filters.levels);
       if (filters.category) query = query.eq("category", filters.category);
+      if (filters.programType) query = query.eq("program_type", filters.programType);
       if (filters.search?.trim()) {
         query = query.textSearch("search", filters.search.trim(), { type: "websearch", config: "english" });
       }
