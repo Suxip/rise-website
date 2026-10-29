@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SOURCE_ATTRIBUTIONS, type Program, type ProgramCategory } from "@/data/programs";
+import { SOURCE_ATTRIBUTIONS } from "@/data/programs";
+import type { Program, ProgramCategory } from "@/data/programs";
 import { set } from "date-fns";
 
 const CATEGORY_STYLES: Record<ProgramCategory, string> = {
