@@ -22,24 +22,30 @@ RISE is a free, public website that helps households find residential sustainabi
 - [shadcn/ui](https://ui.shadcn.com/) and [Radix UI](https://www.radix-ui.com/)
 - [React Router](https://reactrouter.com/)
 - [TanStack Query](https://tanstack.com/query/latest)
-- [Papa Parse](https://www.papaparse.com/) for CSV data
+- [Supabase](https://supabase.com/) for program data
 - [Vitest](https://vitest.dev/) and Testing Library
 
 ## Program data
 
-RISE fetches its directory data from the CSV URL configured in `VITE_SHEETS_URL`. The CSV must include these exact column headings:
+Program data lives in a [Supabase](https://supabase.com) Postgres database. The browser talks to Supabase directly with the public *publishable* key; row-level security in the database allows public reads and blocks public writes. There is no separate server.
 
-| Column | Description |
+Pages get programs only through `fetchPrograms(filters)` in `src/data/programs.ts`:
+
+```ts
+await fetchPrograms({ levels: ["federal"] });
+await fetchPrograms({ stateCode: "CA" });
+await fetchPrograms({ search: "heat pump rebate", category: "energy" });
+```
+
+After a successful request, the result is cached in local storage per filter set. If a later request fails, the cached copy is used; with no cache, the function throws so pages can show an error.
+
+| Path | Purpose |
 | --- | --- |
-| `Program` | Program or incentive name |
-| `Type` | `energy`, `water`, `transportation`, or `recycling` |
-| `Description` | Short public-facing description |
-| `Link` | Official program URL |
-| `How to Access` | Eligibility or application details |
-| `State` | State or territory name, or the value used for federal records |
-| `Level` | Program level, such as `state` or `federal` |
-
-After a successful request, the application saves the parsed program list in browser local storage. If a later request fails, the application uses that cached data when available.
+| `supabase/migrations/` | Database structure and permission rules, applied in filename order |
+| `supabase/seed.sql` | Generated program data (replaces all rows when run) |
+| `scripts/xlsx_to_seed.py` | Regenerates `seed.sql` from the program spreadsheet |
+| `src/lib/supabase.ts` | Browser Supabase client |
+| `docs/backend-handoff.md` | Full backend plan, setup steps, and team responsibilities |
 
 ## Available scripts
 
@@ -59,7 +65,7 @@ After a successful request, the application saves the parsed program list in bro
 src/
 ├── assets/       Images and brand assets
 ├── components/   Shared layout, program, filter, and UI components
-├── data/         Program types, state data, and CSV loading logic
+├── data/         Program types, state data, and Supabase data loading
 ├── hooks/        Shared React hooks
 ├── lib/          Utility functions
 ├── pages/        Route-level page components
@@ -101,7 +107,7 @@ This repository runs as a standalone static React application. No authoring-plat
 ### Local setup
 
 1. Install dependencies with `npm ci`.
-2. Copy `.env.example` to `.env` and set `VITE_SHEETS_URL` to the existing public CSV export URL. Keep the current URL to preserve the same program data. This build variable is visible to browsers; use a public read-only CSV URL.
+2. Copy `.env.example` to `.env` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from Supabase → Project Settings → API Keys. Use the publishable key only, never the secret/`service_role` key.
 3. Run `npm run dev`, or `npm run build` followed by `npm run preview`.
 
 ### Move to a fresh repository
@@ -110,7 +116,7 @@ Create a new empty GitHub repository under the intended account. For source hist
 
 The checked-in GitHub Actions workflow builds and deploys `dist/` to GitHub Pages. In the new repository:
 
-1. Configure the `VITE_SHEETS_URL` Actions secret with the same value used by the current site.
+1. Configure the `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` Actions secrets.
 2. Enable Pages with GitHub Actions as the deployment source.
 3. The workflow reads the Pages base path and configures assets, routing, and nested-route redirects for either the repository URL or a custom domain. Locally, builds default to the domain root.
 4. To retain `risebenefits.org`, configure that custom domain in the new repository and coordinate its DNS/Pages cutover after verification. The root `CNAME` documents the current domain but is not copied by Vite into `dist/`; configure the domain in Pages settings.
@@ -119,8 +125,8 @@ The checked-in GitHub Actions workflow builds and deploys `dist/` to GitHub Page
 
 - Home, state directory, individual states, federal programs, local guidance, about, and contact pages match the current site on desktop and mobile.
 - Direct navigation and refresh on nested routes work with the existing 404 redirect.
-- Program data, category filters, and local-storage fallback work using the existing spreadsheet.
+- Program data, category filters, and local-storage fallback work against Supabase.
 - Contact submissions open the visitor's email client with the same recipient and message.
 - Existing Google Analytics and Google Fonts remain in place.
 
-There is no server/database implementation in this repository. Program data is fetched directly from the configured CSV; the contact form uses `mailto:`. Unused localhost API constants do not make network requests. Preserve the existing spreadsheet and its publishing permissions. A different origin starts with an empty browser cache; cached programs from the old domain do not transfer automatically.
+There is no server in this repository. Program data is fetched directly from Supabase; the contact form uses `mailto:`. A different origin starts with an empty browser cache; cached programs from the old domain do not transfer automatically.

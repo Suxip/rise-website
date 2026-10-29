@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { type ProgramCategory } from "@/data/programs";
+import { type ProgramCategory, type Program } from "@/data/programs";
 import { fetchPrograms } from "@/data/programs";
 import ProgramCard from "@/components/ProgramCard";
 import CategoryFilter from "@/components/CategoryFilter";
@@ -20,10 +20,9 @@ export default function StateProgramsPage() {
 
   const [filter, setFilter] = useState<ProgramCategory | "all">(initialCat);
   const [selectedState, setSelectedState] = useState(stateParam);
-  const [programs, setPrograms] = useState([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [availableStates, setAvailableStates] = useState<string[]>([]);
 
   // Keep selectedState in sync with URL changes (e.g. from Home search).
   useEffect(() => {
@@ -33,21 +32,13 @@ export default function StateProgramsPage() {
   useEffect(() => {
     setLoading(true);
     setError(false);
-    fetchPrograms()
+    // The URL and dropdown use state names; the database is keyed by code.
+    const stateCode = selectedState === "all"
+      ? undefined
+      : US_STATES.find((s) => s.name.toLowerCase() === selectedState.toLowerCase())?.code ?? selectedState;
+    fetchPrograms({ levels: ["state", "territory"], stateCode })
       .then((data) => {
-        const stateAndTerritory = data.filter((p) => p.level === "state" || p.level === "territory");
-
-        const unique = [...new Set(stateAndTerritory.map((p) => p.state))]
-          .filter(Boolean)
-          .sort();
-
-        setAvailableStates(unique);
-
-        const filtered = selectedState === "all"
-          ? stateAndTerritory
-          : stateAndTerritory.filter((p) => p.state.toLowerCase() === selectedState.toLowerCase());
-
-        setPrograms(filtered);
+        setPrograms(data);
         setLoading(false);
       })
       .catch(() => { setError(true); setLoading(false); });

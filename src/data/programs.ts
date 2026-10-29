@@ -1,4 +1,4 @@
-import Papa from "papaparse";
+import { supabase } from "@/lib/supabase";
 
 export type ProgramCategory = "energy" | "water" | "transportation" | "recycling";
 
@@ -7,6 +7,7 @@ export interface Program {
   name: string;
   category: string;
   state: string;
+  stateCode: string | null;
   description: string;
   url: string;
   details: string;
@@ -52,39 +53,80 @@ export const US_STATES = [
   { code: "MP", name: "Northern Mariana Islands" },
 ];
 
-const SHEETS_URL = import.meta.env.VITE_SHEETS_URL;
 const CACHE_KEY = "programs_cache";
+const PAGE_SIZE = 1000; // Supabase caps a single request at 1000 rows.
 
-export async function fetchPrograms(): Promise<Program[]> {
+export interface ProgramFilters {
+  /** Two-letter state/territory code, e.g. "CA" or "DC". */
+  stateCode?: string;
+  levels?: string[];
+  category?: ProgramCategory;
+  /** Free-text search over name, description and access notes. */
+  search?: string;
+}
+
+interface ProgramRow {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  url: string;
+  how_to_access: string;
+  state: string;
+  state_code: string | null;
+  level: string;
+}
+
+const toProgram = (row: ProgramRow): Program => ({
+  id:          String(row.id),
+  name:        row.name,
+  category:    row.category,
+  description: row.description,
+  url:         row.url,
+  details:     row.how_to_access,
+  state:       row.state,
+  stateCode:   row.state_code,
+  level:       row.level,
+});
+
+export async function fetchPrograms(filters: ProgramFilters = {}): Promise<Program[]> {
+  const cacheKey = `${CACHE_KEY}:${JSON.stringify(filters)}`;
   try {
-    const res = await fetch(SHEETS_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!supabase) throw new Error("Supabase is not configured");
 
-    const text = await res.text();
-    const { data } = Papa.parse<Record<string, string>>(text, {
-      header: true,
-      skipEmptyLines: true,
-    });
+    const rows: ProgramRow[] = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      let query = supabase
+        .from("programs")
+        .select("id, name, category, description, url, how_to_access, state, state_code, level")
+        .order("state")
+        .order("name")
+        .order("id")
+        .range(from, from + PAGE_SIZE - 1);
 
-    const programs: Program[] = data.map((row, index) => ({
-      id:          String(index),
-      name:        row["Program"],
-      category:    row["Type"]?.toLowerCase().trim(),
-      description: row["Description"],
-      url:         row["Link"],
-      details:     row["How to Access"],
-      state:       row["State"],
-      level:       row["Level"]?.toLowerCase().trim(),
-    }));
+      if (filters.stateCode) query = query.eq("state_code", filters.stateCode.toUpperCase());
+      if (filters.levels?.length) query = query.in("level", filters.levels);
+      if (filters.category) query = query.eq("category", filters.category);
+      if (filters.search?.trim()) {
+        query = query.textSearch("search", filters.search.trim(), { type: "websearch", config: "english" });
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      rows.push(...(data as ProgramRow[]));
+      if (data.length < PAGE_SIZE) break;
+    }
+
+    const programs = rows.map(toProgram);
 
     // Save to cache on success
-    localStorage.setItem(CACHE_KEY, JSON.stringify(programs));
+    localStorage.setItem(cacheKey, JSON.stringify(programs));
     return programs;
 
   } catch (err) {
-    console.warn("Failed to fetch sheet — falling back to cache:", err);
-    const cached = localStorage.getItem(CACHE_KEY);
+    console.warn("Failed to fetch programs — falling back to cache:", err);
+    const cached = localStorage.getItem(cacheKey);
     if (cached) return JSON.parse(cached);
-    return [];
+    throw err;
   }
 }

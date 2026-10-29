@@ -3,23 +3,21 @@ import { useSearchParams, Link } from "react-router-dom";
 import { type ProgramCategory } from "@/data/programs";
 import ProgramCard from "@/components/ProgramCard";
 import CategoryFilter from "@/components/CategoryFilter";
-import { fetchPrograms } from "@/data/programs";
-
-const API = "http://localhost:3001/api";
+import { fetchPrograms, type Program } from "@/data/programs";
 
 export default function FederalPage() {
   const [searchParams] = useSearchParams();
   const initialCat = (searchParams.get("category") as ProgramCategory) || "all";
   const [filter, setFilter] = useState<ProgramCategory | "all">(initialCat);
-  const [programs, setPrograms] = useState([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    fetchPrograms()
+    fetchPrograms({ levels: ["federal"] })
       .then((data) => {
-        setPrograms(data.filter((p) => p.level === "federal"));
+        setPrograms(data);
         setLoading(false);
       })
       .catch(() => { setError(true); setLoading(false); });

@@ -3,9 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { US_STATES, type ProgramCategory } from "@/data/programs";
 import ProgramCard from "@/components/ProgramCard";
 import CategoryFilter from "@/components/CategoryFilter";
-import { fetchPrograms } from "@/data/programs";
-
-const API = "http://localhost:3001/api";
+import { fetchPrograms, type Program } from "@/data/programs";
 
 export default function StatePage() {
   const { code } = useParams<{ code: string }>();
@@ -13,19 +11,20 @@ export default function StatePage() {
   const stateName = US_STATES.find((s) => s.code === stateCode)?.name ?? stateCode;
 
   const [filter, setFilter] = useState<ProgramCategory | "all">("all");
-  const [programs, setPrograms] = useState([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    fetchPrograms()
+    setError(false);
+    fetchPrograms({ stateCode })
       .then((data) => {
-        setPrograms(data.filter((p) => p.state.toLowerCase() === stateName.toLowerCase()));
+        setPrograms(data);
         setLoading(false);
       })
       .catch(() => { setError(true); setLoading(false); });
-  }, [stateName]);
+  }, [stateCode]);
 
   const filtered = useMemo(
     () => (filter === "all" ? programs : programs.filter((p) => p.category === filter)),
@@ -46,7 +45,7 @@ export default function StatePage() {
         {loading ? (
           <div className="col-span-full text-center text-muted-foreground py-10">Loading programs...</div>
         ) : error ? (
-          <div className="col-span-full text-center text-muted-foreground py-10">Failed to load programs. Make sure the backend is running.</div>
+          <div className="col-span-full text-center text-muted-foreground py-10">Failed to load programs. Check your connection and try again.</div>
         ) : filtered.length > 0 ? (
           filtered.map((p) => <ProgramCard key={p.id} program={p} />)
         ) : (
