@@ -39,7 +39,7 @@ export default function Index() {
     <>
       <section className="relative z-20 bg-background pt-20 pb-16 md:pt-28 md:pb-20">
         <div className="container text-center">
-          <p className="text-sm font-semibold tracking-wide text-muted-foreground mb-5">A little easier. A little more sustainable.</p>
+          <p className="text-sm font-semibold tracking-wide text-primary mb-5">A little easier. A little more sustainable.</p>
           <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
             className="mx-auto max-w-5xl text-[clamp(3rem,6.8vw,6rem)] font-semibold leading-[1.04] tracking-[-0.055em]">
             A better home.<br />More within reach.
@@ -52,7 +52,7 @@ export default function Index() {
               className="rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80">
               Choose your state
             </button>
-            <button onClick={() => navigate('/federal')} className="inline-flex items-center gap-1 text-sm font-medium hover:underline underline-offset-4">
+            <button onClick={() => navigate('/federal')} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4">
               Browse federal programs <ChevronRight size={16} />
             </button>
           </div>
@@ -83,12 +83,12 @@ export default function Index() {
           {CATEGORIES.map((cat, index) => (
             <button key={cat.key} onClick={() => navigate(`/federal?category=${cat.key}`)}
               className={`group flex min-h-64 md:min-h-72 flex-col items-start rounded-[2rem] p-8 md:p-11 text-left transition-transform hover:-translate-y-1 ${index === 0 ? 'bg-[#1d1d1f] text-white' : 'bg-muted text-foreground'}`}>
-              <span className={`mb-5 h-2 w-2 rounded-full ${index === 0 ? 'bg-white/60' : 'bg-foreground/40'}`} aria-hidden="true" />
+              <span className={`mb-5 h-2 w-2 rounded-full ${{energy:'bg-energy',water:'bg-water',transportation:'bg-transport',recycling:'bg-recycle'}[cat.key]}`} aria-hidden="true" />
               <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.045em]">{cat.label}</h2>
               <p className={`mt-3 text-base ${index === 0 ? 'text-white/65' : 'text-muted-foreground'}`}>
                 {{energy:'Heat pumps, solar, and efficiency upgrades.',water:'Water-saving fixtures and conservation.',transportation:'EVs, e-bikes, charging, and transit.',recycling:'A second life for appliances and electronics.'}[cat.key]}
               </p>
-              <span className="mt-7 inline-flex items-center gap-1 text-sm font-medium">Browse {cat.label.toLowerCase()} <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
+              <span className={`mt-7 inline-flex items-center gap-1 text-sm font-medium ${index === 0 ? 'text-[#83c6a4]' : 'text-primary'}`}>Browse {cat.label.toLowerCase()} <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
             </button>
           ))}
         </div>
@@ -98,7 +98,7 @@ export default function Index() {
           <p className="text-sm font-medium text-muted-foreground mb-4">Why RISE?</p>
           <h2 className="text-4xl md:text-5xl leading-tight mb-6">Good for your home.<br />Easier on your wallet.</h2>
           <p className="text-lg leading-relaxed text-muted-foreground">Saving money shouldn't be complicated. RISE brings together residential incentives from across the country, so you can find what's available, understand who qualifies, and take the next step.</p>
-          <button onClick={() => navigate('/about')} className="mt-7 inline-flex items-center gap-1 text-sm font-medium hover:underline underline-offset-4">Get to know RISE <ChevronRight size={16} /></button>
+          <button onClick={() => navigate('/about')} className="mt-7 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4">Get to know RISE <ChevronRight size={16} /></button>
         </div>
       </section>
     </>

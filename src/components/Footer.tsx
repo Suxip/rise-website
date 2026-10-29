@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container py-10 grid gap-8 sm:grid-cols-3">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <img src={riseLogo} alt="RISE logo" className="h-10 w-auto grayscale" />
+            <img src={riseLogo} alt="RISE logo" className="h-10 w-auto" />
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Residential Incentives for Sustainability and Environmentalism. Helping every household access tax rebates, programs, and incentives.

@@ -20,7 +20,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
       <div className="container flex h-16 md:h-20 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={riseLogo} alt="RISE logo" className="h-12 md:h-14 w-auto grayscale" />
+          <img src={riseLogo} alt="RISE logo" className="h-12 md:h-14 w-auto" />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
