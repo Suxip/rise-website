@@ -3,11 +3,11 @@ import riseLogo from "@/assets/rise-logo.png";
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-card mt-auto">
+    <footer className="border-t bg-muted mt-auto">
       <div className="container py-10 grid gap-8 sm:grid-cols-3">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <img src={riseLogo} alt="RISE logo" className="h-10 w-auto" />
+            <img src={riseLogo} alt="RISE logo" className="h-10 w-auto grayscale" />
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Residential Incentives for Sustainability and Environmentalism. Helping every household access tax rebates, programs, and incentives.

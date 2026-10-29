@@ -28,7 +28,7 @@ export default function CategoryFilter({ active, onChange }: Props) {
               : "bg-muted text-muted-foreground hover:text-foreground"
           }`}
         >
-          {cat.icon} {cat.label}
+          {cat.label}
         </button>
       ))}
     </div>

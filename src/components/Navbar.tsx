@@ -18,19 +18,19 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
-      <div className="container flex h-24 md:h-28 items-center justify-between">
+      <div className="container flex h-16 md:h-20 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={riseLogo} alt="RISE logo" className="h-20 md:h-24 w-auto" />
+          <img src={riseLogo} alt="RISE logo" className="h-12 md:h-14 w-auto grayscale" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className={`px-4 py-2 rounded-md text-base font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 pathname === l.to
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-muted text-foreground"
                   : "text-foreground/80 hover:text-foreground hover:bg-muted"
               }`}
             >
@@ -40,16 +40,17 @@ export default function Navbar() {
         </nav>
 
         <button
-          className="md:hidden p-2 rounded-md hover:bg-muted"
+          className="lg:hidden p-2 rounded-md hover:bg-muted"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
+          aria-expanded={open}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
       {open && (
-        <nav className="md:hidden border-t bg-card px-4 pb-4 pt-2 space-y-1">
+        <nav className="lg:hidden border-t bg-card px-4 pb-4 pt-2 space-y-1">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.to}
@@ -57,7 +58,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className={`block px-4 py-3 rounded-md text-base font-medium transition-colors ${
                 pathname === l.to
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-muted text-foreground"
                   : "text-foreground/80 hover:text-foreground hover:bg-muted"
               }`}
             >
