@@ -112,7 +112,7 @@ The checked-in GitHub Actions workflow builds and deploys `dist/` to GitHub Page
 
 1. Configure the `VITE_SHEETS_URL` Actions secret with the same value used by the current site.
 2. Enable Pages with GitHub Actions as the deployment source.
-3. Keep the site served at the domain root. Current routes, asset URLs, and `public/404.html` assume this. A repository subpath URL requires additional routing and asset configuration.
+3. The workflow reads the Pages base path and configures assets, routing, and nested-route redirects for either the repository URL or a custom domain. Locally, builds default to the domain root.
 4. To retain `risebenefits.org`, configure that custom domain in the new repository and coordinate its DNS/Pages cutover after verification. The root `CNAME` documents the current domain but is not copied by Vite into `dist/`; configure the domain in Pages settings.
 
 ### Behavior to verify before switching the live domain

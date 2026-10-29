@@ -100,7 +100,7 @@ export default function AboutPage() {
                   <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3 text-lg font-semibold overflow-hidden">
                     {member.pfp ? ( //if pfp exisits
                       <img
-                        src={member.pfp}
+                        src={`${import.meta.env.BASE_URL}${member.pfp.slice(1)}`}
                         alt={member.name}
                         className="w-full h-full object-cover"
                       /> ) : ( //if pfp doesn't exist, use initials
