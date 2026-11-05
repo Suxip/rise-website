@@ -39,7 +39,6 @@ export default function Index() {
     <>
       <section className="relative z-20 bg-background pt-20 pb-16 md:pt-28 md:pb-20">
         <div className="container text-center">
-          <p className="text-sm font-semibold tracking-wide text-primary mb-5">A little easier. A little more sustainable.</p>
           <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
             className="mx-auto max-w-5xl text-[clamp(3rem,6.8vw,6rem)] font-semibold leading-[1.04] tracking-[-0.055em]">
             A better home.<br />More within reach.
@@ -49,31 +48,31 @@ export default function Index() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-7">
             <button onClick={() => { setShowDropdown(true); dropdownRef.current?.querySelector('input')?.focus(); }}
-              className="rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-80">
+              className="rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground transition-opacity hover:opacity-80">
               Choose your state
             </button>
-            <button onClick={() => navigate('/federal')} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4">
+            <button onClick={() => navigate('/federal')} className="inline-flex items-center gap-1 text-lg font-medium text-primary hover:underline underline-offset-4">
               Browse federal programs <ChevronRight size={16} />
             </button>
           </div>
-          <div className="relative mx-auto mt-9 max-w-md text-left" ref={dropdownRef}>
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={18} />
+          <div className="relative mx-auto mt-9 max-w-lg text-left" ref={dropdownRef}>
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={22} />
             <input type="text" aria-label="Search for your state or territory" value={search}
               onChange={(e) => { setSearch(e.target.value); setShowDropdown(true); }}
               onFocus={() => setShowDropdown(true)} onKeyDown={(e) => { if(e.key === 'Escape') setShowDropdown(false); if(e.key === 'Enter' && filtered.length === 1) handleSelectState(filtered[0].code); }}
               placeholder="Search your state or territory"
-              className="w-full rounded-full border border-transparent bg-muted py-4 pl-12 pr-5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              className="w-full rounded-full border border-transparent bg-muted py-4 pl-14 pr-5 text-lg placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
             {showDropdown && (
               <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-64 overflow-y-auto rounded-2xl border bg-background p-2 shadow-xl">
                 {filtered.length > 0 ? filtered.map((state) => (
-                  <button key={state.code} onClick={() => handleSelectState(state.code)} className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm hover:bg-muted">
+                  <button key={state.code} onClick={() => handleSelectState(state.code)} className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-lg hover:bg-muted">
                     {state.name}<ArrowRight size={14} className="text-muted-foreground" />
                   </button>
                 )) : <p className="px-4 py-3 text-sm text-muted-foreground">No matching states found.</p>}
               </div>
             )}
           </div>
-          <button onClick={() => navigate('/local')} className="mt-5 text-xs text-muted-foreground hover:text-foreground hover:underline underline-offset-4">
+          <button onClick={() => navigate('/local')} className="mt-5 text-base text-muted-foreground hover:text-foreground hover:underline underline-offset-4">
             Looking for local resources? Start here <span aria-hidden="true">↗</span>
           </button>
         </div>
