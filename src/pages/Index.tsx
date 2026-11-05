@@ -68,7 +68,7 @@ export default function Index() {
                   <button key={state.code} onClick={() => handleSelectState(state.code)} className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-lg hover:bg-muted">
                     {state.name}<ArrowRight size={14} className="text-muted-foreground" />
                   </button>
-                )) : <p className="px-4 py-3 text-sm text-muted-foreground">No matching states found.</p>}
+                )) : <p className="px-4 py-3 text-base text-muted-foreground">No matching states found.</p>}
               </div>
             )}
           </div>
@@ -87,17 +87,17 @@ export default function Index() {
               <p className={`mt-3 text-base ${index === 0 ? 'text-white/65' : 'text-muted-foreground'}`}>
                 {{energy:'Heat pumps, solar, and efficiency upgrades.',water:'Water-saving fixtures and conservation.',transportation:'EVs, e-bikes, charging, and transit.',recycling:'A second life for appliances and electronics.'}[cat.key]}
               </p>
-              <span className={`mt-7 inline-flex items-center gap-1 text-sm font-medium ${index === 0 ? 'text-[#83c6a4]' : 'text-primary'}`}>Browse {cat.label.toLowerCase()} <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
+              <span className={`mt-7 inline-flex items-center gap-1 text-base font-medium ${index === 0 ? 'text-[#83c6a4]' : 'text-primary'}`}>Browse {cat.label.toLowerCase()} <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
             </button>
           ))}
         </div>
       </section>
       <section className="bg-muted py-20 md:py-28">
         <div className="container max-w-3xl text-center">
-          <p className="text-sm font-medium text-muted-foreground mb-4">Why RISE?</p>
+          <p className="text-base font-medium text-muted-foreground mb-4">Why RISE?</p>
           <h2 className="text-4xl md:text-5xl leading-tight mb-6">Good for your home.<br />Easier on your wallet.</h2>
           <p className="text-lg leading-relaxed text-muted-foreground">Saving money shouldn't be complicated. RISE brings together residential incentives from across the country, so you can find what's available, understand who qualifies, and take the next step.</p>
-          <button onClick={() => navigate('/about')} className="mt-7 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4">Get to know RISE <ChevronRight size={16} /></button>
+          <button onClick={() => navigate('/about')} className="mt-7 inline-flex items-center gap-1 text-base font-medium text-primary hover:underline underline-offset-4">Get to know RISE <ChevronRight size={16} /></button>
         </div>
       </section>
     </>

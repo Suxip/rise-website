@@ -10,7 +10,7 @@ export default function CategoryFilter({ active, onChange }: Props) {
     <div className="flex flex-wrap gap-2">
       <button
         onClick={() => onChange("all")}
-        className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+        className={`rounded-full px-4 py-2 text-base font-medium transition-colors ${
           active === "all"
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-muted-foreground hover:text-foreground"
@@ -22,7 +22,7 @@ export default function CategoryFilter({ active, onChange }: Props) {
         <button
           key={cat.key}
           onClick={() => onChange(cat.key)}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-full px-4 py-2 text-base font-medium transition-colors ${
             active === cat.key
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:text-foreground"

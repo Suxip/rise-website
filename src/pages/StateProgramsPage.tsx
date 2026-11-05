@@ -71,7 +71,7 @@ export default function StateProgramsPage() {
 
   return (
     <div className="container py-12">
-      <p className="text-sm text-muted-foreground mb-1">
+      <p className="text-base text-muted-foreground mb-1">
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link> / State Programs
       </p>
       <h1 className="font-serif text-3xl md:text-4xl mb-2">State Programs</h1>
@@ -111,7 +111,7 @@ export default function StateProgramsPage() {
                 ? "No programs found for this selection. Check back soon!"
                 : "No programs match this category."}
             </p>
-            <Link to="/federal" className="text-sm font-medium text-primary hover:underline">
+            <Link to="/federal" className="text-base font-medium text-primary hover:underline">
               Browse Federal Programs →
             </Link>
           </div>
