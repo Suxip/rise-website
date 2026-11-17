@@ -6,6 +6,13 @@ import { US_STATES, CATEGORIES, fetchPrograms, type Program } from "@/data/progr
 
 import CategoryFlashcard from "@/components/CategoryFlashcard";
 
+const FEATURED_PROGRAM_NAMES = {
+  energy: "Home Upgrades (Department of Energy)",
+  water: "WaterSense Rebate Finder",
+  transportation: "Alternative Fuels Data Center",
+  recycling: "The Recycling Partnership",
+} as const;
+
 export default function Index() {
   const navigate = useNavigate();
   const [spotlights, setSpotlights] = useState<Program[]>([]);
@@ -89,7 +96,7 @@ export default function Index() {
         <div className="grid gap-5 md:grid-cols-2 max-w-6xl mx-auto">
           {CATEGORIES.map((cat, index) => (
             <CategoryFlashcard key={cat.key} category={cat.key} label={cat.label} dark={index === 0}
-              program={spotlights.find(program => program.category === cat.key)} />
+              program={spotlights.find(program => program.name?.trim() === FEATURED_PROGRAM_NAMES[cat.key])} />
           ))}
         </div>
       </section>
