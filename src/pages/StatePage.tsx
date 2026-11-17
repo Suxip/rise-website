@@ -34,7 +34,7 @@ export default function StatePage() {
 
   return (
     <div className="container py-12">
-      <p className="text-sm text-muted-foreground mb-1">
+      <p className="text-base text-muted-foreground mb-1">
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link> / {stateName}
       </p>
       <h1 className="font-serif text-3xl md:text-4xl mb-2">{stateName}</h1>
@@ -57,10 +57,10 @@ export default function StatePage() {
                 : "No programs match this category."}
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link to="/federal" className="text-sm font-medium text-primary hover:underline">
+              <Link to="/federal" className="text-base font-medium text-primary hover:underline">
                 Browse Federal Programs →
               </Link>
-              <Link to="/contact" className="text-sm font-medium text-primary hover:underline">
+              <Link to="/contact" className="text-base font-medium text-primary hover:underline">
                 Suggest a Program →
               </Link>
             </div>
@@ -70,7 +70,7 @@ export default function StatePage() {
 
       {programs.length > 0 && (
         <div className="mt-12 rounded-lg border bg-muted p-6 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             Not seeing what you need?{" "}
             <Link to="/federal" className="text-primary font-medium hover:underline">View Federal Programs</Link>
             {" or "}

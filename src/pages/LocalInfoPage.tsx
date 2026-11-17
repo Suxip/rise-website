@@ -73,7 +73,7 @@ const sectionVariants = {
 export default function LocalInfoPage() {
   return (
     <div className="container py-12 max-w-4xl">
-      <p className="text-sm text-muted-foreground mb-1">
+      <p className="text-base text-muted-foreground mb-1">
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link> / Local Programs
       </p>
       <h1 className="font-serif text-3xl md:text-4xl mb-2">Local Programs & Resources</h1>
@@ -105,11 +105,11 @@ export default function LocalInfoPage() {
                     {resource.title}
                   </a>
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{resource.description}</p>
+                <p className="text-base text-muted-foreground mt-1 leading-relaxed">{resource.description}</p>
               </div>
             </div>
 
-            <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground ml-12 mb-4">
+            <ol className="list-decimal list-inside space-y-2 text-base text-muted-foreground ml-12 mb-4">
               {resource.steps.map((step, j) => (
                 <li key={j} className="leading-relaxed">{step}</li>
               ))}
@@ -120,7 +120,7 @@ export default function LocalInfoPage() {
                 href={resource.link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1.5 text-base font-medium text-primary hover:underline"
               >
                 {resource.link.label} <ExternalLink size={14} />
               </a>
@@ -130,7 +130,7 @@ export default function LocalInfoPage() {
       </div>
 
       <div className="mt-12 rounded-xl border border-secondary/40 bg-secondary/10 p-6 text-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Know of a resource we should include?{" "}
           <Link to="/contact" className="text-primary font-medium hover:underline">Let us know</Link>
         </p>
