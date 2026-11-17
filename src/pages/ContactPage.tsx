@@ -27,7 +27,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container py-12 max-w-2xl">
+    <div className="container py-12 max-w-3xl px-3 sm:px-4">
       <h1 className="font-serif text-3xl md:text-4xl mb-2">Contact Us</h1>
       <p className="text-muted-foreground mb-8">
         Have a correction, suggestion, or question? We'd love to hear from you.

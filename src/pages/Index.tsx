@@ -2,10 +2,18 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Search, ArrowRight, ChevronRight } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { US_STATES, CATEGORIES } from "@/data/programs";
+import { US_STATES, CATEGORIES, fetchPrograms, type Program } from "@/data/programs";
+
+import CategoryFlashcard from "@/components/CategoryFlashcard";
 
 export default function Index() {
   const navigate = useNavigate();
+  const [spotlights, setSpotlights] = useState<Program[]>([]);
+  useEffect(() => {
+    let active = true;
+    fetchPrograms().then((programs) => { if (active) setSpotlights(programs); }).catch(() => {});
+    return () => { active = false; };
+  }, []);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -80,15 +88,8 @@ export default function Index() {
       <section className="container pb-20 md:pb-28" aria-label="Browse federal programs by category">
         <div className="grid gap-5 md:grid-cols-2 max-w-6xl mx-auto">
           {CATEGORIES.map((cat, index) => (
-            <button key={cat.key} onClick={() => navigate(`/federal?category=${cat.key}`)}
-              className={`group flex min-h-64 md:min-h-72 flex-col items-start rounded-[2rem] p-8 md:p-11 text-left transition-transform hover:-translate-y-1 ${index === 0 ? 'bg-[#1d1d1f] text-white' : 'bg-muted text-foreground'}`}>
-              <span className={`mb-5 h-2 w-2 rounded-full ${{energy:'bg-energy',water:'bg-water',transportation:'bg-transport',recycling:'bg-recycle'}[cat.key]}`} aria-hidden="true" />
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.045em]">{cat.label}</h2>
-              <p className={`mt-3 text-base ${index === 0 ? 'text-white/65' : 'text-muted-foreground'}`}>
-                {{energy:'Heat pumps, solar, and efficiency upgrades.',water:'Water-saving fixtures and conservation.',transportation:'EVs, e-bikes, charging, and transit.',recycling:'A second life for appliances and electronics.'}[cat.key]}
-              </p>
-              <span className={`mt-7 inline-flex items-center gap-1 text-base font-medium ${index === 0 ? 'text-[#83c6a4]' : 'text-primary'}`}>Browse {cat.label.toLowerCase()} <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" /></span>
-            </button>
+            <CategoryFlashcard key={cat.key} category={cat.key} label={cat.label} dark={index === 0}
+              program={spotlights.find(program => program.category === cat.key)} />
           ))}
         </div>
       </section>
