@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, ExternalLink } from "lucide-react";
 import type { Program, ProgramCategory } from "@/data/programs";
@@ -17,18 +17,25 @@ export default function CategoryFlashcard({ category, label, dark, program }: {
   category: ProgramCategory; label: string; dark: boolean; program?: Program;
 }) {
   const [flipped, setFlipped] = useState(false);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout>>();
+  const clearHover = () => clearTimeout(hoverTimer.current);
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
+  const scheduleReveal = (visible: boolean) => {
+    clearHover();
+    hoverTimer.current = setTimeout(() => setFlipped(visible), visible ? 350 : 200);
+  };
   const surface = dark ? "bg-[#1d1d1f] text-white" : "bg-muted text-foreground";
   const muted = dark ? "text-white/65" : "text-muted-foreground";
   const link = dark ? "text-[#83c6a4]" : "text-primary";
   return (
     <div className="category-flashcard group min-h-64 md:min-h-72 rounded-[2rem] text-left"
       tabIndex={0} role="group" aria-label={`${label}: focus or tap to reveal a program spotlight`}
-      onMouseEnter={() => setFlipped(true)} onMouseLeave={() => setFlipped(false)}
-      onFocus={() => setFlipped(true)}
-      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFlipped(false); }}
+      onMouseEnter={() => scheduleReveal(true)} onMouseLeave={() => scheduleReveal(false)}
+      onFocus={(event) => { if (event.target.matches(":focus-visible")) { clearHover(); setFlipped(true); } }}
+      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) { clearHover(); setFlipped(false); } }}
       onKeyDown={(event) => { if (event.target !== event.currentTarget) return; if (event.key === "Escape") setFlipped(false); if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setFlipped(value => !value); } }}>
       <div className={`category-flashcard-inner ${flipped ? "is-flipped" : ""}`}>
-        <div onClick={() => setFlipped(true)} aria-hidden={flipped}
+        <div onClick={() => { clearHover(); setFlipped(true); }} aria-hidden={flipped}
           className={`category-flashcard-face flex w-full flex-col items-start rounded-[2rem] p-8 md:p-11 text-left ${surface}`}>
           <span className={`mb-5 h-2 w-2 rounded-full ${DOTS[category]}`} aria-hidden="true" />
           <h2 className="text-3xl md:text-4xl font-semibold tracking-[-0.045em]">{label}</h2>
