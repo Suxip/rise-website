@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { type ProgramCategory, type Program } from "@/data/programs";
+import { type Program, type ProgramCategory } from "@/data/programs";
 import { fetchPrograms } from "@/data/programs";
 import ProgramCard from "@/components/ProgramCard";
 import CategoryFilter from "@/components/CategoryFilter";
+import StateTileMap from "@/components/StateTileMap";
 import { US_STATES } from "@/data/programs";
 import {
   Select,
@@ -16,7 +17,7 @@ import {
 export default function StateProgramsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCat = (searchParams.get("category") as ProgramCategory) || "all";
-  const stateParam = searchParams.get("state") || "all";
+  const stateParam = searchParams.get("state") || "";
 
   const [filter, setFilter] = useState<ProgramCategory | "all">(initialCat);
   const [selectedState, setSelectedState] = useState(stateParam);
@@ -29,30 +30,45 @@ export default function StateProgramsPage() {
     setSelectedState(stateParam);
   }, [stateParam]);
 
+  // Load the selected state's programs from the database, again whenever the state changes.
   useEffect(() => {
+    if (!selectedState) {
+      setPrograms([]);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
     setLoading(true);
     setError(false);
     // The URL and dropdown use state names; the database is keyed by code.
-    const stateCode = selectedState === "all"
-      ? undefined
-      : US_STATES.find((s) => s.name.toLowerCase() === selectedState.toLowerCase())?.code ?? selectedState;
+    const stateCode =
+      US_STATES.find((s) => s.name.toLowerCase() === selectedState.toLowerCase())?.code ?? selectedState;
     fetchPrograms({ levels: ["state", "territory"], stateCode })
       .then((data) => {
+        if (cancelled) return;
         setPrograms(data);
         setLoading(false);
       })
-      .catch(() => { setError(true); setLoading(false); });
+      .catch(() => {
+        if (cancelled) return;
+        setError(true);
+        setLoading(false);
+      });
+    // Ignore a slow response if the user has already picked another state.
+    return () => { cancelled = true; };
   }, [selectedState]);
 
+  // The database already returned only this state's programs.
+  const statePrograms = programs;
   const filtered = useMemo(
-    () => (filter === "all" ? programs : programs.filter((p) => p.category === filter)),
-    [programs, filter]
+    () => filter === "all" ? statePrograms : statePrograms.filter((p) => p.category === filter),
+    [statePrograms, filter]
   );
 
   const handleStateChange = (value: string) => {
     setSelectedState(value);
     const params = new URLSearchParams(searchParams);
-    if (value === "all") {
+    if (!value) {
       params.delete("state");
     } else {
       params.set("state", value);
@@ -62,34 +78,34 @@ export default function StateProgramsPage() {
 
   return (
     <div className="container py-12">
-      <p className="text-sm text-muted-foreground mb-1">
+      <p className="text-base text-muted-foreground mb-1">
         <Link to="/" className="hover:text-foreground transition-colors">Home</Link> / State Programs
       </p>
-      <h1 className="font-serif text-3xl md:text-4xl mb-2">State Programs</h1>
-      <p className="text-muted-foreground mb-8">
-        Browse incentives available at the state level across the U.S.
-      </p>
+      <section className="grid gap-10 lg:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.4fr)] items-center py-8 md:py-12">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight leading-tight mb-5">Start with your state.</h1>
+          <p className="text-base md:text-lg text-muted-foreground mb-7 max-w-md">Select a state on the map to find its rebates, incentives, and programs.</p>
+          <label htmlFor="state-select" className="block text-base font-medium mb-2">Choose a state or territory</label>
+          <Select value={selectedState} onValueChange={handleStateChange}>
+            <SelectTrigger id="state-select" className="w-full max-w-sm bg-background">
+              <SelectValue placeholder="Select a state or territory" />
+            </SelectTrigger>
+            <SelectContent>
+              {US_STATES.map((state) => <SelectItem key={state.code} value={state.name}>{state.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <StateTileMap selected={selectedState} onSelect={handleStateChange} />
+      </section>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <Select value={selectedState} onValueChange={handleStateChange}>
-          <SelectTrigger className="w-full sm:w-64">
-            <SelectValue placeholder="All States & Territories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All States & Territories</SelectItem>
-          {US_STATES.map((s) => (
-            <SelectItem key={s.code} value={s.name}>
-              {s.name}
-            </SelectItem>
-          ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <CategoryFilter active={filter} onChange={setFilter} />
-
+      <section aria-labelledby="state-results-heading" className="border-t pt-8">
+        <div className="mb-6" aria-live="polite" aria-atomic="true">
+          <h2 id="state-results-heading" className="text-2xl md:text-3xl mb-2">{selectedState ? `${selectedState} programs` : "Find programs near you"}</h2>
+          <p className="text-base text-muted-foreground">{selectedState ? `${filtered.length} ${filtered.length === 1 ? "program" : "programs"}${filter === "all" ? "" : ` in ${filter}`}. Explore the details and official links below.` : "Choose a state or territory above to see its programs here."}</p>
+        </div>
+        {selectedState && <CategoryFilter active={filter} onChange={setFilter} />}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {loading ? (
+        {!selectedState ? null : loading ? (
           <div className="col-span-full text-center text-muted-foreground py-10">Loading programs...</div>
         ) : error ? (
           <div className="col-span-full text-center text-muted-foreground py-10">Failed to load programs. Check your connection and try again.</div>
@@ -98,16 +114,17 @@ export default function StateProgramsPage() {
         ) : (
           <div className="col-span-full rounded-lg border bg-card p-10 text-center">
             <p className="text-muted-foreground mb-4">
-              {programs.length === 0
+              {statePrograms.length === 0
                 ? "No programs found for this selection. Check back soon!"
                 : "No programs match this category."}
             </p>
-            <Link to="/federal" className="text-sm font-medium text-primary hover:underline">
+            <Link to="/federal" className="text-base font-medium text-primary hover:underline">
               Browse Federal Programs →
             </Link>
           </div>
         )}
       </div>
+      </section>
     </div>
   );
 }

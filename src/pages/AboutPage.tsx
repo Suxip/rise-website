@@ -72,7 +72,7 @@ export default function AboutPage() {
         ].map((v) => (
           <div key={v.title} className="rounded-lg border bg-card p-5">
             <h3 className="font-serif text-lg mb-1 text-card-foreground">{v.title}</h3>
-            <p className="text-sm text-muted-foreground">{v.desc}</p>
+            <p className="text-base text-muted-foreground">{v.desc}</p>
           </div>
         ))}
       </div>
@@ -109,8 +109,8 @@ export default function AboutPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-medium text-card-foreground">{member.name}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{member.role}</p>
+                  <p className="text-base font-medium text-card-foreground">{member.name}</p>
+                  <p className="text-base text-muted-foreground mt-0.5">{member.role}</p>
                 </div>
               ))}
             </div>
@@ -121,7 +121,7 @@ export default function AboutPage() {
       <hr className="my-10 border-border" />
 
       <h2 className="font-serif text-2xl mb-4">What RISE Is Not</h2>
-      <ul className="list-disc pl-6 space-y-3 text-muted-foreground text-sm">
+      <ul className="list-disc pl-6 space-y-3 text-muted-foreground text-base">
         <li>RISE does not determine eligibility or provide applications directly.</li>
         <li>RISE does not offer financial advice or guarantee program availability.</li>
         <li>RISE is an information and navigation tool, not a replacement for official agencies.</li>

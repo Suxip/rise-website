@@ -20,8 +20,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["'DM Sans'", "system-ui", "sans-serif"],
-        serif: ["'DM Serif Display'", "serif"],
+        sans: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        serif: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

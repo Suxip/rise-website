@@ -33,17 +33,17 @@ export default function ContactPage() {
         Have a correction, suggestion, or question? We'd love to hear from you.
       </p>
 
-      <div className="rounded-lg border border-secondary/40 bg-secondary/10 p-4 mb-8 text-sm text-muted-foreground">
+      <div className="rounded-lg border border-secondary/40 bg-secondary/10 p-4 mb-8 text-base text-muted-foreground">
         <strong className="text-foreground">Please note:</strong> RISE cannot provide eligibility determinations or process applications. We welcome corrections, program suggestions, and general feedback.
       </div>
 
       <div className="flex items-center gap-3 rounded-lg border bg-card p-4 mb-8">
         <Mail size={20} className="text-primary shrink-0" />
         <div>
-          <p className="text-sm font-medium text-card-foreground">Email us directly</p>
+          <p className="text-base font-medium text-card-foreground">Email us directly</p>
           <a
             href="mailto:rise_initiative@cornell.edu"
-            className="text-sm text-primary hover:underline"
+            className="text-base text-primary hover:underline"
           >
             rise_initiative@cornell.edu
           </a>
@@ -52,31 +52,31 @@ export default function ContactPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium mb-1.5">Name</label>
+          <label className="block text-base font-medium mb-1.5">Name</label>
           <input
             type="text"
             required
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full rounded-lg border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-card px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Email</label>
+          <label className="block text-base font-medium mb-1.5">Email</label>
           <input
             type="email"
             required
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full rounded-lg border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-card px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Message Type</label>
+          <label className="block text-base font-medium mb-1.5">Message Type</label>
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="w-full rounded-lg border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-card px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {MESSAGE_TYPES.map((t) => (
               <option key={t}>{t}</option>
@@ -84,18 +84,18 @@ export default function ContactPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1.5">Message</label>
+          <label className="block text-base font-medium mb-1.5">Message</label>
           <textarea
             required
             rows={5}
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
-            className="w-full rounded-lg border bg-card px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            className="w-full rounded-lg border bg-card px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+          className="rounded-lg bg-primary px-6 py-2.5 text-base font-medium text-primary-foreground hover:opacity-90 transition-opacity"
         >
           Send Message
         </button>
