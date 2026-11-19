@@ -13,6 +13,9 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import LocalInfoPage from "./pages/LocalInfoPage";
 import NotFound from "./pages/NotFound";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminPage from "./pages/admin/AdminPage";
+import RequireAdmin from "./components/admin/RequireAdmin";
 
 
 const queryClient = new QueryClient();
@@ -33,10 +36,15 @@ const App = () => (
             <Route path="/local" element={<LocalInfoPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route
+              path="/admin"
+              element={<RequireAdmin>{(admin) => <AdminPage admin={admin} />}</RequireAdmin>}
+            />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
-        
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
