@@ -4,6 +4,7 @@ import { Search, ArrowRight, ChevronRight } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { US_STATES, CATEGORIES, fetchPrograms, type Program } from "@/data/programs";
 
+import FeaturedProgramsCarousel from "@/components/FeaturedProgramsCarousel";
 import CategoryFlashcard from "@/components/CategoryFlashcard";
 
 const FEATURED_PROGRAM_NAMES = {
@@ -96,7 +97,7 @@ export default function Index() {
         <div className="grid gap-5 md:grid-cols-2 max-w-6xl mx-auto">
           {CATEGORIES.map((cat, index) => (
             <CategoryFlashcard key={cat.key} category={cat.key} label={cat.label} dark={index === 0}
-              program={spotlights.find(program => program.name?.trim() === FEATURED_PROGRAM_NAMES[cat.key])} />
+              program={spotlights.find(program => program.name?.trim() === FEATURED_PROGRAM_NAMES[cat.key] && program.level === "federal")} />
           ))}
         </div>
       </section>
@@ -108,6 +109,10 @@ export default function Index() {
           <button onClick={() => navigate('/about')} className="mt-7 inline-flex items-center gap-1 text-base font-medium text-primary hover:underline underline-offset-4">Get to know RISE <ChevronRight size={16} /></button>
         </div>
       </section>
+      <FeaturedProgramsCarousel programs={CATEGORIES.flatMap(category => {
+        const program = spotlights.find(item => item.name?.trim() === FEATURED_PROGRAM_NAMES[category.key] && item.level === "federal");
+        return program ? [program] : [];
+      })} />
     </>
   );
 }
